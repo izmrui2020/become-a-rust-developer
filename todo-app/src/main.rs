@@ -2,7 +2,7 @@
 extern crate diesel;
 
 use actix_files::Files;
-use actix_web::{web, get, post, Result, Error, App, HttpResponse, HttpServer, Responder};
+use actix_web::{App, Error, HttpResponse, HttpServer, Responder, Result, get, http, post, web};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::sqlite::SqliteConnection;
@@ -48,8 +48,16 @@ async fn index(hb: web::Data<Handlebars<'_>>, pool: web::Data<DbPool>) -> Result
     Ok(HttpResponse::Ok().body(body))
 }
 
-async fn add_todo_form(pool: web::Data<DbPool>, mut parts: Parts) {
+async fn add(hb: web::Data<Handlebars<'_>>) -> Result<HttpResponse, Error> {
+
+    let body = hb.render("add", &{}).unwrap();
+
+    Ok(HttpResponse::Ok().body(body))
+}
+
+async fn add_todo_form(pool: web::Data<DbPool>, mut parts: Parts) ->Result<HttpResponse, Error> {
     let text_fields: HashMap<_, _> = parts.texts.as_pairs().into_iter().collect();
+    println!("parts is = {:?}, text_fields = {:?}", parts, text_fields);
 
     let connection = pool.get().expect("can't get db connection from pool");
     let new_todo_task = NewTodo {
@@ -65,8 +73,23 @@ async fn add_todo_form(pool: web::Data<DbPool>, mut parts: Parts) {
     .map_err(|_| {
         HttpResponse::InternalServerError().finish()
     })?;
-    HttpResponse::InternalServerError().finish()
+    Ok(HttpResponse::Ok().header(http::header::LOCATION, "/").finish())
 }
+
+//TODO
+// async fn todo(hb: web::Data<Handlebars<'_>>, pool: web::Data<DbPool>, todo_id: web::Path<String>) -> Result<HttpResponse, Error> {
+//     let connection = pool.get().expect("can't get db connection from pool");
+    
+//     let todo_data = web::block(move || todos.filter(id.eq(todo_id)).first::<Todo>(&connection))
+//         .await
+//         .map_err(|_| {
+//             HttpResponse::InternalServerError().finish()
+//         })?;
+
+//     let body = hb.render("todo", &todo_data).unwrap();
+
+//     Ok(HttpResponse::Ok().body(body))
+// }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -96,6 +119,9 @@ async fn main() -> std::io::Result<()> {
                     .show_files_listing(),
             )
             .route("/", web::get().to(index))
+            //.route("/todo/{id}", web::get().to(todo))
+            .route("/add", web::get().to(add))
+            .route("/add_todo_form", web::post().to(add_todo_form))
     })
     .bind("127.0.0.1:8080")?
     .run()
