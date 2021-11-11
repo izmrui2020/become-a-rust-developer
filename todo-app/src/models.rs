@@ -9,3 +9,10 @@ pub struct Todo {
     pub contents: String,
     pub done: bool
 }  
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[table_name = "todos"]
+pub struct NewTodo {
+    pub kind: String,
+    pub contents: String,
+}

@@ -50,6 +50,22 @@ async fn index(hb: web::Data<Handlebars<'_>>, pool: web::Data<DbPool>) -> Result
 
 async fn add_todo_form(pool: web::Data<DbPool>, mut parts: Parts) {
     let text_fields: HashMap<_, _> = parts.texts.as_pairs().into_iter().collect();
+
+    let connection = pool.get().expect("can't get db connection from pool");
+    let new_todo_task = NewTodo {
+        kind: text_fields.get("kind").unwrap().to_string(),
+        contents: text_fields.get("contents").unwrap().to_string()
+    };
+    web::block(move ||
+        diesel::insert_into(todos)
+        .values(&new_todo_task)
+        .execute(&connection)    
+    )
+    .await
+    .map_err(|_| {
+        HttpResponse::InternalServerError().finish()
+    })?;
+    HttpResponse::InternalServerError().finish()
 }
 
 #[actix_web::main]
