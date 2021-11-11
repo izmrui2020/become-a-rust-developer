@@ -1,5 +1,5 @@
 table! {
-    posts (id) {
+    todos (id) {
         id -> Text,
         kind -> Text,
         contents -> Text,

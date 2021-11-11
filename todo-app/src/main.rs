@@ -1,17 +1,41 @@
-use actix_files::{NamedFile};
+#[macro_use]
+extern crate diesel;
+
+use actix_files::Files;
 use actix_web::{web, get, post, Result, Error, App, HttpResponse, HttpServer, Responder};
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+use r2d2_diesel::ConnectionManager;
+use std::thread;
 
-async fn index() -> Result<NamedFile> {
 
-    Ok(NamedFile::open("./static/index.html")?
-    )
+use dotenv::dotenv;
+use std::env;
+
+use handlebars::Handlebars;
+
+async fn index() -> Result<()> {
+
+    Ok(())
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Listning on port 8080");
+    dotenv().ok();
 
-    HttpServer::new(|| {
+    /////for .html
+    let mut handlebars = Handlebars::new();
+    handlebars
+        .register_templates_directory(".html", "./static/")
+        .unwrap();
+    //for database
+    let database_url = env::var("DATABASE_URL")
+    .expect("DATABASE_URL must be set");
+    let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
+    let pool =
+
+    println!("Listning on port 8080");
+    HttpServer::new(move|| {
         App::new()
             .route("/", web::get().to(index))
     })

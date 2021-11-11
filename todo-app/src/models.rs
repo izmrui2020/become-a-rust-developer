@@ -1,0 +1,18 @@
+use serde::{Deserialize, Serialize};
+use super::schema::todos;
+
+
+#[derive(Queryable, Serialize)]
+pub struct Todo {
+    pub id: String,
+    pub kind: String,
+    pub contents: String,
+    pub done: bool
+}  
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[table_name = "todos"]
+pub struct NewTodo {
+    // id will be added by the database
+    
+}
