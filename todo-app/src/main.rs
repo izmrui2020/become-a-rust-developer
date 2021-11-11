@@ -7,9 +7,11 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::sqlite::SqliteConnection;
 //use r2d2_diesel::ConnectionManager;
+use std::collections::HashMap;
 use serde::Serialize;
 use std::thread;
 use handlebars::Handlebars;
+use awmp::Parts;
 
 use dotenv::dotenv;
 use std::env;
@@ -44,6 +46,10 @@ async fn index(hb: web::Data<Handlebars<'_>>, pool: web::Data<DbPool>) -> Result
     let body = hb.render("index", &data).unwrap();
     
     Ok(HttpResponse::Ok().body(body))
+}
+
+async fn add_todo_form(pool: web::Data<DbPool>, mut parts: Parts) {
+    let text_fields: HashMap<_, _> = parts.texts.as_pairs().into_iter().collect();
 }
 
 #[actix_web::main]
