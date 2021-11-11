@@ -1,11 +1,9 @@
+use actix_files::{NamedFile};
+use actix_web::{web, get, post, Result, Error, App, HttpResponse, HttpServer, Responder};
 
-use actix_web::{web, get, post, Error, App, HttpResponse, HttpServer, Responder};
+async fn index() -> Result<NamedFile> {
 
-async fn index() -> Result<Responder<()>, Error> {
-
-    Ok(HttpResponse::Ok()
-        .body("hello world")
-        .expect("aaaaaaa")
+    Ok(NamedFile::open("./static/index.html")?
     )
 }
 
