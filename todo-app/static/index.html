@@ -2,21 +2,24 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>TODO</title>
+    <title>{{project_name}}</title>
     <link rel="stylesheet" href="css/index.css" type="text/css">
   </head>
   <body>
-    <h1>TODO</h1>
-    <section class="todos">
-      <article class="todo">
-        <h3>yuio</h3>
-        <h3>ghjk</h3>
-        <h3>hjks</h3>
-      </article>
-
-    </section>
+    <h1>{{project_name}}</h1>
     <p>
-      <a href="/add.html">Add a new card</a>
+      <a href="/add">追加する場合はこちら。</a>
     </p>
+
+    <section class="todos">
+      {{#each todos}}
+        <article class="todo">
+          <h3><a href="/todo/{{this.id}}">{{this.id}}</a></h3>
+          <p>{{this.kind}}</p>
+          <p>{{this.contents}}</p>
+          <p>{{this.done}}</p>
+        </article>
+      {{/each}}
+    </section>
   </body>
 </html>

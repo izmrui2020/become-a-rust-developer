@@ -9,10 +9,3 @@ pub struct Todo {
     pub contents: String,
     pub done: bool
 }  
-
-#[derive(Insertable, Serialize, Deserialize)]
-#[table_name = "todos"]
-pub struct NewTodo {
-    // id will be added by the database
-    
-}

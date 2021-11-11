@@ -542,6 +542,7 @@ dependencies = [
  "byteorder",
  "diesel_derives",
  "libsqlite3-sys",
+ "r2d2",
 ]
 
 [[package]]
