@@ -1,0 +1,14 @@
+version: "3"
+services:
+  postgresql:
+    image: postgres:12.3-alpine
+    container_name: actix-db
+    ports:
+      - 5555:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    hostname: postgres
+    restart: always
