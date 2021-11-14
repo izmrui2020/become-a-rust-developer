@@ -77,7 +77,7 @@ async fn todo_endpoint(pool: web::Data<DbPool>, todo_id: web::Path<todo_endpoint
         }
     )?;
     
-    Ok(HttpResponse::Ok().body("Ok"))
+    return Ok(HttpResponse::Ok().json(todo_data));
 }
 
 fn setup_database() -> DbPool {
