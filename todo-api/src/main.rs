@@ -6,9 +6,13 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager, Pool};
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+use actix_web::middleware::Logger;
 use log::{info, warn, error};
+use validator::{Validate};
+use validator_derive::{Validate};
 
 use dotenv::dotenv;
+use serde::Deserialize;
 use std::env;
 
 mod db;
@@ -33,13 +37,45 @@ async fn todos_endpoint(pool: web::Data<DbPool>) -> Result<HttpResponse<>, UserE
     .await
     .map_err(|_| {
         error!("Failed to get todo data");
-        HttpResponse::InternalServerError().finish()
+        UserError::InternalError
     })?;
     
     return Ok(HttpResponse::Ok().json(todo_data));
 }
-async fn todo_endpoint(pool: web::Data<DbPool>, todo_id: web::Path<>) -> Result<HttpResponse<>, UserError> {
-    todo_id.validate().map_err(|_| UserError::ValidationError)?;
+
+#[derive(Deserialize, Validate)]
+struct todo_endpoint_path {
+    #[validate(range(min=0, max=150))]
+    id: i32,
+}
+async fn todo_endpoint(pool: web::Data<DbPool>, todo_id: web::Path<todo_endpoint_path>) -> Result<HttpResponse, UserError> {
+    todo_id.validate().map_err(|_| {
+        warn!("Parameter validation failed");
+        UserError::ValidationError
+    })?;
+    let connection = pool.get()
+        .map_err(|_| {
+            error!("faild at db connection pool");
+            UserError::InternalError
+        })?;
+
+    let query_id = todo_id.id.clone();
+    let todo_data = web::block(move ||
+        todos.filter(id.eq(query_id)).first::<Todo>(&connection)
+    )
+    .await
+    .map_err(|e|
+        match e {
+            error::BlockingError::Error(diesel::result::Error::NotFound) => {
+                error!("todo id: {} not found in db", &todo_id.id);
+                UserError::NotFoundError
+            },
+            _ => {
+                error!("Unexpected error");
+                UserError::InternalError
+            },
+        }
+    )?;
     
     Ok(HttpResponse::Ok().body("Ok"))
 }
@@ -72,11 +108,14 @@ fn api_config(cfg: & mut web::ServiceConfig) {
 
 #[actix_web::main]
 async fn main() ->  std::io::Result<()> {
+    env_logger::init();
+
     let pool = setup_database();
 
     println!("Listening on port 50000");
     HttpServer::new(move || {
         App::new()
+            .wrap(Logger::default())
             .data(pool.clone())
             .configure(api_config)
     })
