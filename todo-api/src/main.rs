@@ -49,7 +49,9 @@ fn setup_database() -> DbPool {
 fn api_config(cfg: & mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
-        .app_data(web::PathConfig::default().error_handler(|_, _| {
+        .app_data(
+            web::PathConfig::default()
+            .error_handler(|_, _| {
             UserError::ValidationError.into()
         }))
         .route("/todos", web::get().to(todos_endpoint))
