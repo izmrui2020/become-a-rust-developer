@@ -1557,8 +1557,10 @@ name = "todo-api"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "derive_more",
  "diesel",
  "dotenv",
+ "log",
  "r2d2",
  "serde",
  "serde_json",

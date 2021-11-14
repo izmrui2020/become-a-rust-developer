@@ -6,6 +6,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager, Pool};
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+use log::{info, warn, error};
 
 use dotenv::dotenv;
 use std::env;
@@ -15,21 +16,31 @@ use self::db::models::*;
 use self::db::schema::todos::dsl::*;
 
 mod error;
+use self::error::error::UserError;
 
 mod api;
 
-async fn todos_endpoint(pool: web::Data<DbPool>) -> Result<HttpResponse<>, Error> {
-    let connection = pool.get().expect("can't get db connection from pool");
+async fn todos_endpoint(pool: web::Data<DbPool>) -> Result<HttpResponse<>, UserError> {
+    let connection = pool.get()
+        .map_err(|_| {
+            error!("Failed to get DB connection from pool");
+            UserError::InternalError
+        })?;
 
     let todo_data = web::block(move ||{
         todos.limit(30).load::<Todo>(&connection)
     })
     .await
-    .map_err(|_| HttpResponse::InternalServerError().finish())?;
+    .map_err(|_| {
+        error!("Failed to get todo data");
+        HttpResponse::InternalServerError().finish()
+    })?;
     
     return Ok(HttpResponse::Ok().json(todo_data));
 }
-async fn todo_endpoint() -> Result<HttpResponse<>, Error> {
+async fn todo_endpoint(pool: web::Data<DbPool>, todo_id: web::Path<>) -> Result<HttpResponse<>, UserError> {
+    todo_id.validate().map_err(|_| UserError::ValidationError)?;
+    
     Ok(HttpResponse::Ok().body("Ok"))
 }
 
@@ -60,7 +71,7 @@ fn api_config(cfg: & mut web::ServiceConfig) {
 }
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn main() ->  std::io::Result<()> {
     let pool = setup_database();
 
     println!("Listening on port 50000");
