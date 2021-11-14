@@ -66,7 +66,7 @@ async fn todo_endpoint(pool: web::Data<DbPool>, todo_id: web::Path<todo_endpoint
     .await
     .map_err(|e|
         match e {
-            error::BlockingError::Error(diesel::result::Error::NotFound) => {
+            actix_web::error::BlockingError::Error(diesel::result::Error::NotFound) => {
                 error!("todo id: {} not found in db", &todo_id.id);
                 UserError::NotFoundError
             },
