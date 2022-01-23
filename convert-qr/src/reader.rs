@@ -1,5 +1,5 @@
 
-pub trait Reader<'a> {
-    fn decode();
-    fn reset();
+pub trait Reader {
+    fn decode(&self);
+    fn reset(&self);
 }
