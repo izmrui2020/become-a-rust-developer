@@ -1,5 +1,6 @@
 use crate::{
     http::{login_credentials, login_session, logout},
+    database::DatabaseExecutor,
 };
 use r2d2::Pool;
 use actix_cors::Cors;
@@ -10,6 +11,9 @@ use actix_web::{
     middleware,
     web::{get, post, resource},
     App, HttpServer, HttpResponse,
+};
+use std::{
+    thread,
 };
 use diesel::{r2d2::ConnectionManager, prelude::*};
 use anyhow::Result;
@@ -36,11 +40,11 @@ impl Server {
 
         let manager = ConnectionManager::<PgConnection>::new(database);
         let pool = Pool::builder().build(manager)?;
-        //let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
+        let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
 
         let server = HttpServer::new(move || {
             App::new()
-                //.data(db_addr.clone())
+                .data(db_addr.clone())
                 .wrap(
                     Cors::default()
                         .allowed_methods(vec!["GET", "POST"])
