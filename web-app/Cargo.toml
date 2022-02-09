@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.53"
-diesel = { version = "1.4.8"}
+diesel = { version = "1.4.8", option = true }
 serde = { version = "1.0.135", features = ["derive"] }
 toml = "0.5.8"
 
