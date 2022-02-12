@@ -2,6 +2,11 @@
 use anyhow::Result;
 use structopt::{clap, StructOpt};
 use std::path::PathBuf;
+use tonic::{transport::Server, Request, Response, Status};
+
+pub mod demo {
+    tonic::include_proto!("demo");
+}
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "tonic_and_postgres")]
