@@ -1,12 +1,13 @@
-# web 系のアプリを作成していこう
+# Would you like to become a rust web developer??
 
-### 第一弾
+# Contents
 
-- Todo app
-- Todo REST 風 API
+### 1st
+- Todo legacy app
+- Todo REST api
 
-### 第二弾
-- github api
+### 2nd
+- tonic
 
-### 第三弾
-- 本格的なwebapp
+### 3rd
+- 
