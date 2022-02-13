@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use tonic::{transport::Server, Request, Response, Status};
 
 pub mod demo {
-    tonic::include_proto!("demo");
+    tonic::include_proto!("user");
 }
 
 #[derive(Debug, StructOpt)]
