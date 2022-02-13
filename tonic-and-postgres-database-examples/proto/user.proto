@@ -6,7 +6,7 @@ service Crud {
     rpc GetUser (UserRequest) returns (UserReply) {}
     rpc ListUsers (Empty) returns (Users) {}
     rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {}
-    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReqly) {}
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {}
     rpc DeleteUser (UserRequest) returns (DeleteUserReply) {}
     rpc DeleteUsers (Empty) returns (DeleteUserReply) {}
 }
@@ -41,7 +41,7 @@ message UpdateUserRequest {
     string date_of_birth = 4;
 }
 
-message UpdateUserReqly {
+message UpdateUserReply {
     string message = 1;
 }
 
